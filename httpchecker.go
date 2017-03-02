@@ -60,6 +60,14 @@ type HTTPChecker struct {
 	Headers http.Header `json:"headers,omitempty"`
 }
 
+func (c HTTPChecker) GetName() string {
+	return c.Name
+}
+
+func (c HTTPChecker) GetURL() string {
+	return c.URL
+}
+
 // Check performs checks using c according to its configuration.
 // An error is only returned if there is a configuration error.
 func (c HTTPChecker) Check() (Result, error) {

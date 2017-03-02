@@ -335,6 +335,8 @@ func (c *Checkup) UnmarshalJSON(b []byte) error {
 // Checker can create a Result.
 type Checker interface {
 	Check() (Result, error)
+	GetName() string
+	GetURL() string
 }
 
 // Storage can store results.
