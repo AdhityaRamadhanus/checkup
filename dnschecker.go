@@ -31,6 +31,14 @@ type DNSChecker struct {
 	Attempts int `json:"attempts,omitempty"`
 }
 
+func (c DNSChecker) GetName() string {
+	return c.Name
+}
+
+func (c DNSChecker) GetURL() string {
+	return c.URL
+}
+
 // Check performs checks using c according to its configuration.
 // An error is only returned if there is a configuration error.
 func (c DNSChecker) Check() (Result, error) {
