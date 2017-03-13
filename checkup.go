@@ -453,13 +453,13 @@ func (r Result) ComputeStats() Stats {
 func (r Result) String() string {
 	stats := r.ComputeStats()
 	s := fmt.Sprintf("== %s - %s\n", r.Title, r.Endpoint)
-	s += fmt.Sprintf("  Threshold: %s\n", r.ThresholdRTT)
-	s += fmt.Sprintf("        Max: %s\n", stats.Max)
-	s += fmt.Sprintf("        Min: %s\n", stats.Min)
-	s += fmt.Sprintf("     Median: %s\n", stats.Median)
-	s += fmt.Sprintf("       Mean: %s\n", stats.Mean)
-	s += fmt.Sprintf("        All: %v\n", r.Times)
-	statusLine := fmt.Sprintf(" Assessment: %v\n", r.Status())
+	s += fmt.Sprintf("Threshold: %s\n", r.ThresholdRTT)
+	s += fmt.Sprintf("Max: %s\n", stats.Max)
+	s += fmt.Sprintf("Min: %s\n", stats.Min)
+	s += fmt.Sprintf("Median: %s\n", stats.Median)
+	s += fmt.Sprintf("Mean: %s\n", stats.Mean)
+	s += fmt.Sprintf("All: %v\n", r.Times)
+	statusLine := fmt.Sprintf("Assessment: %v\n", r.Status())
 	switch r.Status() {
 	case Healthy:
 		statusLine = color.GreenString(statusLine)
@@ -469,6 +469,16 @@ func (r Result) String() string {
 		statusLine = color.RedString(statusLine)
 	}
 	s += statusLine
+	return s
+}
+
+// CompactString returns a human-readable rendering of r with only necessary information.
+func (r Result) CompactString() string {
+	stats := r.ComputeStats()
+	s := fmt.Sprintf("Max: %s\n", stats.Max)
+	s += fmt.Sprintf("Min: %s\n", stats.Min)
+	s += fmt.Sprintf("Mean: %s\n", stats.Mean)
+	s += fmt.Sprintf("Assessment: %v\n", r.Status())
 	return s
 }
 
