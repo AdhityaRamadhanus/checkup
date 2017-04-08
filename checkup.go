@@ -192,6 +192,8 @@ func (c Checkup) MarshalJSON() ([]byte, error) {
 		allCheckers = append([]byte{'['}, bytes.Join(checkers, []byte(","))...)
 		allCheckers = append(allCheckers, ']')
 		wrap("checkers", allCheckers)
+	} else {
+		wrap("checkers", []byte("[]"))
 	}
 
 	// Storage
