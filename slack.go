@@ -6,12 +6,16 @@ import (
 	"strings"
 	"time"
 
+	"fmt"
+
 	"github.com/nlopes/slack"
 )
 
 type EndpointState struct {
+	Name        string
+	URL         string
 	LastChecked int64
-	LastStatus  string
+	LastStatus  StatusText
 }
 
 // SlackNotifier is the main struct consist of all the sub component including slack api, real-time messaing api and face detector
@@ -19,12 +23,12 @@ type SlackNotifier struct {
 	ID             string
 	RTM            *slack.RTM
 	SlackApi       *slack.Client
-	EndpointStates []EndpointState
+	EndpointStates map[string]EndpointState
 	ChannelID      string
 }
 
 const (
-	helpText = "How can I help you? mention me and upload your photos, i will do some magic"
+	helpText = "How can I help you?"
 )
 
 var (
@@ -35,8 +39,9 @@ var (
 // NewSlackNotifier create new Thug bot
 func NewSlackNotifier(slackToken string, channelID string) *SlackNotifier {
 	slackNotifier := &SlackNotifier{
-		SlackApi:  slack.New(slackToken),
-		ChannelID: channelID,
+		SlackApi:       slack.New(slackToken),
+		ChannelID:      channelID,
+		EndpointStates: make(map[string]EndpointState),
 	}
 	go slackNotifier.run()
 	return slackNotifier
@@ -92,8 +97,19 @@ func (t *SlackNotifier) run() {
 
 func (s *SlackNotifier) Notify(results []Result) error {
 	for _, result := range results {
-		if result.Down {
-			s.RTM.SendMessage(s.RTM.NewOutgoingMessage(result.Title+" is currently down", s.ChannelID))
+		state, ok := s.EndpointStates[result.Title]
+		if !ok && result.Down {
+			message := fmt.Sprintf("%s is currently down, last checked %v", result.Title, result.Timestamp)
+			s.RTM.SendMessage(s.RTM.NewOutgoingMessage(message, s.ChannelID))
+		} else if ok && result.Down && state.LastStatus == "healthy" {
+			message := fmt.Sprintf("%s is currently down, last checked %v", result.Title, result.Timestamp)
+			s.RTM.SendMessage(s.RTM.NewOutgoingMessage(message, s.ChannelID))
+		}
+		s.EndpointStates[result.Title] = EndpointState{
+			Name:        result.Title,
+			URL:         result.Endpoint,
+			LastChecked: result.Timestamp,
+			LastStatus:  result.Status(),
 		}
 	}
 	return nil
