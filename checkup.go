@@ -326,6 +326,17 @@ func (c *Checkup) UnmarshalJSON(b []byte) error {
 	}
 	if raw.Notifier != nil {
 		switch types.Notifier.Name {
+		case "slack":
+			slackConfig := struct {
+				SlackToken string `json:"token"`
+				ChannelID  string `json:"channel"`
+			}{}
+			err = json.Unmarshal(raw.Notifier, &slackConfig)
+			if err != nil {
+				return err
+			}
+			log.Println("Creating Notifier for Slack")
+			c.Notifier = NewSlackNotifier(slackConfig.SlackToken, slackConfig.ChannelID)
 		default:
 			return fmt.Errorf("%s: unknown Notifier type", types.Notifier.Name)
 		}
